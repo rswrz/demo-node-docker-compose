@@ -1,18 +1,57 @@
-// content of index.js
-const http = require('http')
-const port = 3000
+const Hapi = require('@hapi/hapi');
+const Inert = require('@hapi/inert');
+const Vision = require('@hapi/vision');
+const HapiSwagger = require('hapi-swagger');
+const Joi = require('joi');
+const Pack = require('./package');
 
-const requestHandler = (request, response) => {
-  console.log(request.url)
-  response.end('Hello Node.js Server!')
-}
+(async () => {
+    const server = await new Hapi.Server({
+        host: '0.0.0.0',
+        port: 3000,
+    });
 
-const server = http.createServer(requestHandler)
+    const swaggerOptions = {
+        info: {
+                title: 'Test API Documentation',
+                version: Pack.version,
+            },
+        };
 
-server.listen(port, (err) => {
-  if (err) {
-    return console.log('something bad happened', err)
-  }
+    await server.register([
+        Inert,
+        Vision,
+        {
+            plugin: HapiSwagger,
+            options: swaggerOptions
+        }
+    ]);
 
-  console.log(`server is listening on ${port}`)
-})
+    try {
+        await server.start();
+        console.log('Server running at:', server.info.uri);
+    } catch(err) {
+        console.log(err);
+    }
+
+    await server.route({
+        method: 'GET',
+        path: '/todo/{id}',
+        options: {
+            handler: function (request, h) {
+                return `Your todo id is ${request.params.id}`;
+            },
+            description: 'Get todo',
+            notes: 'Returns a todo item by the id passed in the path',
+            tags: ['api'], // ADD THIS TAG
+            validate: {
+                params: Joi.object({
+                    id : Joi.number()
+                            .required()
+                            .description('the id for the todo item'),
+                })
+            }
+        },
+    });
+
+})();
