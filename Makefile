@@ -19,3 +19,8 @@ run:
 shell:
 	podman exec --interactive --tty \
 		$(container) bash
+
+clean:
+	podman stop $(container) || true
+	podman rm -v $(container) || true
+	podman volume rm $(container)-node_modules || true
