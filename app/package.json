@@ -8,5 +8,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^18.4.0",
+    "@hapi/inert": "^5.2.2",
+    "@hapi/vision": "^5.5.4",
+    "hapi-swagger": "^11.1.0",
+    "joi": "^14.3.1"
+  }
 }
